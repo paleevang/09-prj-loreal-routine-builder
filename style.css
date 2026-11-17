@@ -912,3 +912,128 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+.chat-message {
+  width: fit-content;
+  max-width: min(92%, 760px);
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.user-message {
+  margin-inline-start: auto;
+  margin-inline-end: 0;
+}
+
+.assistant-message {
+  margin-inline-start: 0;
+  margin-inline-end: auto;
+}
+
+.search-section {
+  align-items: center;
+  justify-content: stretch;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.search-section select {
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 0;
+}
+
+.product-search-control {
+  position: relative;
+  display: flex;
+  flex: 1 1 260px;
+  min-width: 0;
+  align-items: center;
+  color: var(--muted-ink);
+}
+
+.product-search-control > i {
+  position: absolute;
+  inset-inline-start: 15px;
+  color: var(--loreal-gold);
+  pointer-events: none;
+}
+
+.product-search-control input {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 15px;
+  padding-inline-start: 42px;
+  border: 1px solid #d5cec8;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+}
+
+.product-search-control input:focus-visible {
+  border-color: var(--loreal-red);
+  outline: 2px solid rgba(255, 0, 59, 0.18);
+  outline-offset: 1px;
+}
+
+.direction-toggle {
+  display: inline-flex;
+  flex: 0 0 auto;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 14px;
+  border: 1px solid #d5cec8;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+}
+
+.direction-toggle:hover,
+.direction-toggle[aria-pressed="true"] {
+  border-color: var(--loreal-gold);
+  background: var(--soft-gold);
+  color: #78520d;
+}
+
+.direction-toggle i {
+  color: var(--deep-red);
+}
+
+:root[dir="rtl"] .direction-toggle i {
+  transform: scaleX(-1);
+}
+
+:root[dir="rtl"] .search-section select,
+:root[dir="rtl"] .product-search-control input {
+  text-align: right;
+}
+
+@media (max-width: 700px) {
+  .search-section {
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .search-section select {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .product-search-control {
+    flex: 1 1 180px;
+  }
+
+  .direction-toggle {
+    padding: 0 11px;
+  }
+}

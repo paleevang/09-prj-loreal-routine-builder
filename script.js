@@ -67,6 +67,10 @@ const clearSelectionsButton = document.getElementById("clearSelections");
 const generateRoutineButton = document.getElementById("generateRoutine");
 const userInput = document.getElementById("userInput");
 const sendButton = document.getElementById("sendBtn");
+const productSearchInput = document.getElementById("productSearch");
+const directionToggle = document.getElementById("directionToggle");
+const directionLabel = directionToggle.querySelector("span");
+const directionStorageKey = "lorealTextDirection";
 const selectionStorageKey = "lorealSelectedProductIds";
 const selectedProducts = new Map();
 let allProducts = [];
@@ -96,6 +100,12 @@ function escapeProductText(value) {
 
 // Draw selectable product cards with an expandable description.
 function displaySelectableProducts(products) {
+  const searchTerm = productSearchInput.value.trim().toLocaleLowerCase();
+  products = products.filter((product) => {
+    const searchableText = `${product.name} ${product.brand} ${product.category} ${product.description}`;
+    return searchableText.toLocaleLowerCase().includes(searchTerm);
+  });
+
   productsContainer.innerHTML = products
     .map((product) => {
       const productId = String(product.id);
@@ -118,7 +128,67 @@ function displaySelectableProducts(products) {
       `;
     })
     .join("");
+
+  if (products.length === 0) {
+    productsContainer.innerHTML = searchTerm
+      ? '<p class="placeholder-message">No products match your search.</p>'
+      : '<p class="placeholder-message">No products found in this category.</p>';
+  }
 }
+
+// Combine the selected category and search term before showing products.
+async function renderProductsWithFilters() {
+  const selectedCategory = categoryFilter.value;
+  const searchTerm = productSearchInput.value.trim();
+
+  if (!selectedCategory && !searchTerm) {
+    productsContainer.innerHTML =
+      '<div class="placeholder-message">Choose a category or search products</div>';
+    return;
+  }
+
+  try {
+    if (allProducts.length === 0) {
+      allProducts = await loadProducts();
+    }
+    const filteredProducts = allProducts.filter(
+      (product) => !selectedCategory || product.category === selectedCategory
+    );
+    displaySelectableProducts(filteredProducts);
+  } catch (error) {
+    productsContainer.innerHTML =
+      '<p class="placeholder-message">Products could not be loaded. Please try again or open the project using a local web server.</p>';
+    console.error("Products could not be loaded for search.", error);
+  }
+}
+
+// Apply the saved text direction to the page and the direction control.
+let isRightToLeft = false;
+try {
+  isRightToLeft = localStorage.getItem(directionStorageKey) === "rtl";
+} catch (error) {
+  console.warn("Text direction preference could not be read.", error);
+}
+
+function updateTextDirection() {
+  document.documentElement.dir = isRightToLeft ? "rtl" : "ltr";
+  directionToggle.setAttribute("aria-pressed", String(isRightToLeft));
+  directionLabel.textContent = isRightToLeft ? "RTL mode" : "LTR mode";
+}
+
+updateTextDirection();
+
+directionToggle.addEventListener("click", () => {
+  isRightToLeft = !isRightToLeft;
+  updateTextDirection();
+  try {
+    localStorage.setItem(directionStorageKey, isRightToLeft ? "rtl" : "ltr");
+  } catch (error) {
+    console.warn("Text direction preference could not be saved.", error);
+  }
+});
+
+productSearchInput.addEventListener("input", renderProductsWithFilters);
 
 // Refresh the saved list and keep the selected IDs in localStorage.
 function updateSelectedProducts() {
@@ -150,6 +220,9 @@ function updateSelectedProducts() {
       (product) => product.category === categoryFilter.value
     );
     displaySelectableProducts(visibleProducts);
+  }
+  if (!categoryFilter.value && productSearchInput.value.trim()) {
+    renderProductsWithFilters();
   }
 }
 
@@ -228,6 +301,7 @@ categoryFilter.addEventListener("change", async () => {
       (product) => product.category === categoryFilter.value
     );
     displaySelectableProducts(visibleProducts);
+    renderProductsWithFilters();
   } catch (error) {
     productsContainer.innerHTML =
       '<p class="placeholder-message">Products could not be loaded. Please try again or open the project using a local web server.</p>';
